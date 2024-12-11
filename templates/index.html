@@ -4,10 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ultrasonic Sensor Alert</title>
+  <style>
+	.my_audio {
+		display: none;
+	}
+  </style>
   <script>
+
     function playAlertSound() {
-      const audio = new Audio("alert.mp3");
-      audio.play();
+		var audio = new Audio('static/audio/alert.mp3');
+		audio.play();
+      }
     }
   </script>
 </head>
@@ -16,6 +23,9 @@
   <p>Distance: {{ distance }} cm</p>
   {% if emergency %}
   <h2 style="color: red;">Emergency Alert: Object too close!</h2>
+  <audio class="my_audio" autoplay>
+		<source src="static/audio/alert.mp3" type="audio/mp3">
+  </audio>
   <script>playAlertSound();</script>
   {% endif %}
 </body>
