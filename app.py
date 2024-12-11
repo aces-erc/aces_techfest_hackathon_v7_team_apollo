@@ -4,9 +4,9 @@ import paho.mqtt.client as mqtt
 app = Flask(__name__)
 
 # MQTT setup
-mqtt_broker = "your_mqtt_broker_address"
+mqtt_broker = "192.168.1.226"  # Replace with your MQTT broker address
 mqtt_port = 1883
-mqtt_topic = "esp/led"
+mqtt_topic = "crashDetection"
 
 client = mqtt.Client()
 client.connect(mqtt_broker, mqtt_port, 60)
