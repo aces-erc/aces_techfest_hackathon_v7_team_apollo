@@ -2,11 +2,11 @@
 #include <PubSubClient.h>
 
 // WiFi credentials
-const char* ssid = "erccomputer_dhrn_2";
-const char* password = "CLB29A60D6";
+const char* ssid = "NB_A";
+const char* password = "12345Niraj";
 
 // MQTT broker details
-const char* mqtt_server = "192.168.1.114";  // Replace with your MQTT broker address
+const char* mqtt_server = "192.168.137.227";  // Replace with your MQTT broker address
 const int mqtt_port = 1883;
 const char* distance_topic = "ultrasonic/distance";
 

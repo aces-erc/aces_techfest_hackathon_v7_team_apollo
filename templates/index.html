@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LED Control</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultrasonic Sensor Alert</title>
+  <script>
+    function playAlertSound() {
+      const audio = new Audio("alert.mp3");
+      audio.play();
+    }
+  </script>
 </head>
 <body>
-    <h1>Control LED</h1>
-    <button onclick="location.href='/led/on'">Turn On</button>
-    <button onclick="location.href='/led/off'">Turn Off</button>
+  <h1>Ultrasonic Sensor Data</h1>
+  <p>Distance: {{ distance }} cm</p>
+  {% if emergency %}
+  <h2 style="color: red;">Emergency Alert: Object too close!</h2>
+  <script>playAlertSound();</script>
+  {% endif %}
 </body>
 </html>
