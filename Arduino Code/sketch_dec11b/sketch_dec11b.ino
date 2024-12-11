@@ -1,99 +1,93 @@
-#include <Wire.h>
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 
-// Define pins
-#define echoPin 2
-#define trigPin 4
-
 // WiFi credentials
-const char* ssid = "Hackthon_Worldlink";
-const char* password = "AcesHackathon@123";
+const char* ssid = "erccomputer_dhrn_2";
+const char* password = "CLB29A60D6";
 
-// MQTT broker settings
-const char* mqttServer = "192.168.1.226";
-const int mqttPort = 1883;
-const char* mqttTopic = "crashDetection";
+// MQTT broker details
+const char* mqtt_server = "192.168.1.114";  // Replace with your MQTT broker address
+const int mqtt_port = 1883;
+const char* distance_topic = "ultrasonic/distance";
 
-// MQTT client
+// Ultrasonic sensor pins
+const int trigPin = 4;
+const int echoPin = 2;
+
+// Initialize WiFi and MQTT clients
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-long duration, distance;
-
 void setup() {
-  // Start serial communication
   Serial.begin(115200);
-
-  // Set pin modes
+  
+  // Set up ultrasonic sensor pins
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
   // Connect to WiFi
-  setupWiFi();
+  setup_wifi();
 
-  // Set MQTT server
-  client.setServer(mqttServer, mqttPort);
+  // Set up MQTT server
+  client.setServer(mqtt_server, mqtt_port);
 }
 
 void loop() {
-  // Reconnect to MQTT if needed
   if (!client.connected()) {
-    reconnectMQTT();
+    reconnect();
   }
-
-  client.loop();  // Keep MQTT connection alive
+  client.loop();
 
   // Measure distance
+  long duration, distance;
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-
   duration = pulseIn(echoPin, HIGH);
-  distance = duration / 58.2;
+  distance = (duration / 58.2);
 
-  // If the distance is below 4 cm, send a "Crash Detected" message
-  if (distance < 4) {
-    Serial.println("Crash Detected!");
-    client.publish(mqttTopic, "Crash Detected");
-  }
+  String disp = String(distance);
+  Serial.println(distance);  // Convert to cm
 
-  // Print distance for debugging
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+  // Publish distance to MQTT broker
+  char distanceStr[8];
+  dtostrf(distance, 1, 2, distanceStr);
+  client.publish(distance_topic, distanceStr);
 
-  delay(1000);  // Wait for a second before next reading
+  delay(1000);  // Wait for a second before next measurement
 }
 
-void setupWiFi() {
-  // Connect to WiFi
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("Connected to WiFi");
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
-void reconnectMQTT() {
-  // Loop until we're reconnected
+void reconnect() {
   while (!client.connected()) {
-    Serial.print("Connecting to MQTT...");
-    
-    // Attempt to connect
-    if (client.connect("CrashDetectorClient", mqttUser, mqttPassword)) {
-      Serial.println("Connected to MQTT");
-      // Subscribe to a topic (optional)
-      // client.subscribe("your_subscribe_topic");
+    Serial.print("Attempting MQTT connection...");
+    if (client.connect("ESP32Client")) {  // Use a unique client ID
+      Serial.println("connected");
     } else {
-      Serial.print("Failed to connect to MQTT, rc=");
+      Serial.print("failed, rc=");
       Serial.print(client.state());
-      delay(5000);  // Wait before retrying
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
     }
   }
 }
