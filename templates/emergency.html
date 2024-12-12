@@ -47,10 +47,17 @@
     <header>Emergency Alert</header>
     <section>
         <div class="details">
-			<p>{{ emergency_triggerer }}</p>
-            <h2>{{ trigger_type }}</h2>
+            {% if button_emergency %}
+                <h2>Button Emergency</h2>
+                <div class="details">Emergency triggered by pressing the button!</div>
+            {% elif emergency_triggered %}
+                <h2>Ultrasonic Emergency</h2>
+                <div class="details">Emergency triggered by ultrasonic sensor!</div>
+            {% else %}
+                <h2>No Emergency</h2>
+                <div class="details">No emergency at the moment.</div>
+            {% endif %}
         </div>
-        <div class="details">{{ data }}</div>
         <div class="timestamp">Triggered at: {{ timestamp }}</div>
         <a href="/" class="back-link">Back to Dashboard</a>
         <a href="/trigger_call" class="call-button">Trigger Phone Call</a>

@@ -31,9 +31,9 @@ distance_data = None
 air_quality_status = None
 mqtt_connected = False
 emergency_triggered = False  # Flag for emergency
-emergency_triggerer = 3  # Flag for ultrasonic emergency
 data = 'None'
 trigger_type = 'None'
+button_emergency = False
 
 try:
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
@@ -42,7 +42,7 @@ except Exception as e:
     print(f"Failed to connect to MQTT broker: {e}")
 
 def on_message(client, userdata, msg):
-    global distance_data, air_quality_status, emergency_triggered, emergency_triggerer
+    global distance_data, air_quality_status, emergency_triggered, button_emergency
     print(f"MQTT Message received: {msg.topic} {msg.payload.decode()}")
 
     try:
@@ -51,12 +51,10 @@ def on_message(client, userdata, msg):
             print(f"Updated distance: {distance_data} cm")
             if distance_data < 10:
                 emergency_triggered = True
-                emergency_triggerer = 1
                 print("Emergency Signal Triggered!")
                 socketio.emit('emergency_signal', {'message': 'Emergency Signal Triggered!'})
             else:
                 emergency_triggered = False
-                emergency_triggerer = 3
             socketio.emit('distance_update', {'distance': distance_data})
 
         if msg.topic == AIR_QUALITY_TOPIC:
@@ -66,9 +64,10 @@ def on_message(client, userdata, msg):
 
         if msg.topic == BUTTON_EMERGENCY:
             print("Emergency Signal Triggered!")
-            emergency_triggered = True
-            emergency_triggerer = 0
-            socketio.emit('emergency_signal', {'message': 'Somebody Needs Help!'})
+            button_emergency = True
+            socketio.emit('emergency_signal', {'message': 'Button Emergency Triggered!'})
+        else:
+            button_emergency = False
     except ValueError as e:
         print(f"Error processing message: {e}")
 
@@ -90,41 +89,37 @@ client.loop_start()
 
 @app.route('/')
 def index():
-    global distance_data, air_quality_status, mqtt_connected, emergency_triggered, emergency_triggerer
-    if emergency_triggered:
+    global distance_data, air_quality_status, mqtt_connected, emergency_triggered, button_emergency
+    if emergency_triggered or button_emergency:
         return redirect('/emergency')
     return render_template(
         'index.html',
         distance=distance_data,
         emergency_triggered=emergency_triggered,
+        button_emergency = button_emergency,
         air_quality=air_quality_status,
         mqtt_connected=mqtt_connected,
-        emergency_triggerer=emergency_triggerer
     )
 
 @app.route('/emergency')
 def emergency():
-    global emergency_triggered, distance_data, data, emergency_triggerer, trigger_type
-    if emergency_triggerer == 0:
+    global emergency_triggered, distance_data, data, trigger_type, button_emergency
+    if distance_data is not None and int(distance_data) >= 10:  # Check if distance is no longer critical
+        emergency_triggered = False
+    if button_emergency:
         trigger_type = "Button Emergency"
         data = "Emergency triggered by pressing the button!"
-    elif emergency_triggerer == 1:
+    elif emergency_triggered:
         trigger_type = "Ultrasonic Emergency"
-        if distance_data is not None:
-            data = f"Critical distance detected: {distance_data:.2f} cm. Please take action immediately!"
-        else:
-            data = "Critical distance detected! Distance data unavailable."
+        data = "Emergency triggered by ultrasonic sensor!"
     else:
         trigger_type = "None"
         data = "No emergency at the moment."
 
-    # Reset emergency_triggerer after rendering the emergency page
-    if emergency_triggerer == 1:
-        emergency_triggerer = 3
-
     return render_template(
         'emergency.html',
-        emergency_triggerer=emergency_triggerer,
+        button_emergency=button_emergency,
+        emergency_triggered=emergency_triggered,
         trigger_type=trigger_type,
         data=data,
         timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -136,7 +131,8 @@ def status():
         'mqtt_connected': mqtt_connected,
         'distance': distance_data,
         'emergency': emergency_triggered,
-        'air_quality': air_quality_status
+        'air_quality': air_quality_status,
+        'button_emergency': button_emergency
     })
 
 @app.route('/trigger_call')

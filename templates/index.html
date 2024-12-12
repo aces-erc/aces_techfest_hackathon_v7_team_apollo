@@ -175,6 +175,15 @@
             document.getElementById('emergency-message').textContent = `Distance: ${data.distance} cm`;
             document.getElementById('emergency-alert').classList.add('show');
         });
+
+		socket.on('button_emergency', (data) => {
+			document.getElementById('emergency-message').textContent = `Button Emergency Triggered`;
+			document.getElementById('emergency-alert').classList.add('show');
+		});
+
+		socket.on('mqtt_status', (data) => {
+			document.getElementById('mqtt-status').textContent = `MQTT Connection: ${data.status}`;
+		});
     </script>
 </body>
 </html>
