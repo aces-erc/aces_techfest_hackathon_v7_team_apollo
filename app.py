@@ -27,7 +27,6 @@ try:
     mqtt_connected = True
 except Exception as e:
     print(f"Failed to connect to MQTT broker: {e}")
-mqtt_connected = False
 
 # MQTT message handling
 def on_message(client, userdata, msg):

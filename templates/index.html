@@ -5,35 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-Time Monitoring</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        /* General Styling */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             text-align: center;
+            background-color: #e3f2fd;
+            color: #333;
         }
+
         header {
-            background-color: #4CAF50;
-            padding: 10px;
+            background-color: #1565c0;
+            padding: 20px;
             color: white;
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         section {
-            margin: 20px;
+            margin: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
-        .status {
+
+        .card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+
+        .card p {
             font-size: 18px;
-            margin: 10px 0;
+            margin: 0;
+            color: #333;
+        }
+
+        .pill {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #1e88e5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Emergency Alert Styling */
+        .emergency-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .emergency-alert.show {
+            display: flex;
+        }
+
+        .emergency-alert .alert {
+            background-color: #d32f2f;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 80%;
+            max-width: 500px;
+            animation: scaleUp 0.3s ease-in-out;
+        }
+
+        .emergency-alert .alert i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .emergency-alert .alert p {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .emergency-alert .alert button {
+            background-color: white;
+            color: #d32f2f;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .emergency-alert .alert button:hover {
+            background-color: #f7f7f7;
+        }
+
+        /* Animations */
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
     <header>Real-Time Monitoring Dashboard</header>
+    <div class="pill" id="mqtt-status">MQTT Connection: {{ 'Connected' if mqtt_connected else 'Disconnected' }}</div>
     <section>
-        <div class="status" id="distance-status">Distance: Loading...</div>
-        <div class="status" id="air-quality-status">Air Quality: Loading...</div>
-        <div class="status" id="mqtt-status">MQTT Connection: {{ 'Connected' if mqtt_connected else 'Disconnected' }}</div>
+        <div class="card">
+            <h3>Distance Sensor</h3>
+            <p id="distance-status">Distance: Loading...</p>
+        </div>
+        <div class="card">
+            <h3>Air Quality</h3>
+            <p id="air-quality-status">Air Quality: Loading...</p>
+        </div>
     </section>
+
+    <div class="emergency-alert" id="emergency-alert">
+        <div class="alert">
+            <i class="fas fa-exclamation-triangle"></i> Emergency Triggered!
+            <p id="emergency-message"></p>
+            <button onclick="window.location.href = '/emergency'">View Details</button>
+        </div>
+    </div>
 
     <script>
         const socket = io();
@@ -47,8 +172,8 @@
         });
 
         socket.on('emergency_signal', (data) => {
-            alert(`Emergency Triggered! Distance: ${data.distance} cm`);
-            window.location.href = '/emergency';
+            document.getElementById('emergency-message').textContent = `Distance: ${data.distance} cm`;
+            document.getElementById('emergency-alert').classList.add('show');
         });
     </script>
 </body>
