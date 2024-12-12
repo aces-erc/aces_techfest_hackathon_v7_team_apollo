@@ -6,10 +6,11 @@ const char* ssid = "NB_A";
 const char* password = "12345Niraj";
 
 // MQTT broker details
-const char* mqtt_server = "192.168.137.71";  // Replace with your MQTT broker address
+const char* mqtt_server = "192.168.137.217";  // Replace with your MQTT broker address
 const int mqtt_port = 1883;
 const char* distance_topic = "ultrasonic/distance";
 const char* emergency_topic = "emergency/signal";
+const char* button_topic = "button/emergency";
 
 // Ultrasonic sensor pins
 const int trigPin = 12;
@@ -88,7 +89,7 @@ void loop() {
     digitalWrite(ledPin, HIGH); // Turn on the LED to indicate the signal
 
     // Send emergency signal to MQTT
-    client.publish(emergency_topic, "Emergency signal triggered!");
+    client.publish(button_topic, "Emergency signal triggered!");
 
     // Hold the signal for demonstration
     delay(2000);               // Keep the signal on for 2 seconds

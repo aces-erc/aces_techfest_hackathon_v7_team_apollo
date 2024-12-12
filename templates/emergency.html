@@ -29,7 +29,7 @@
             font-size: 14px;
             color: gray;
         }
-        .back-link {
+        .back-link, .call-button {
             display: inline-block;
             margin-top: 20px;
             padding: 10px 15px;
@@ -38,15 +38,22 @@
             text-decoration: none;
             border-radius: 5px;
         }
+        .call-button {
+            background-color: #4CAF50;
+        }
     </style>
 </head>
 <body>
     <header>Emergency Alert</header>
     <section>
-        <div class="details">{{ trigger_type }}</div>
+        <div class="details">
+			<p>{{ emergency_triggerer }}</p>
+            <h2>{{ trigger_type }}</h2>
+        </div>
         <div class="details">{{ data }}</div>
-        <div class="timestamp">Time: {{ timestamp }}</div>
-        <a class="back-link" href="/">Back to Dashboard</a>
+        <div class="timestamp">Triggered at: {{ timestamp }}</div>
+        <a href="/" class="back-link">Back to Dashboard</a>
+        <a href="/trigger_call" class="call-button">Trigger Phone Call</a>
     </section>
 </body>
 </html>
