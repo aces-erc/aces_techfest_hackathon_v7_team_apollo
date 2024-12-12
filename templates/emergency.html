@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script>
+        // Redirect to /emergency if emergency_triggered is true
+        document.addEventListener("DOMContentLoaded", () => {
+            const emergencyTriggered = {{ emergency_triggered | tojson }};
+            if (emergencyTriggered) {
+                alert("Emergency Triggered!");
+                window.location.href = "/emergency";
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Sensor Dashboard</h1>
+    <p>Distance: {{ distance }} cm</p>
+    <p>Air Quality: {{ air_quality }}</p>
+    <p>MQTT Connected: {{ 'Yes' if mqtt_connected else 'No' }}</p>
+</body>
+</html>

@@ -9,21 +9,34 @@ const char* password = "12345Niraj";
 const char* mqtt_server = "192.168.137.225";  // Replace with your MQTT broker address
 const int mqtt_port = 1883;
 const char* distance_topic = "ultrasonic/distance";
+const char* emergency_topic = "emergency/signal";
 
 // Ultrasonic sensor pins
-const int trigPin = 4;
-const int echoPin = 2;
+const int trigPin = 12;
+const int echoPin = 14;
+
+// Button and LED pins for emergency signal
+const int buttonPin = 26; // GPIO pin for the push button
+const int ledPin = 2;   // GPIO pin for the emergency signal (LED)
 
 // Initialize WiFi and MQTT clients
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+// Variables to track the button state
+bool buttonPressed = false;
+unsigned long buttonPressStart = 0;
+
 void setup() {
   Serial.begin(115200);
-  
+
   // Set up ultrasonic sensor pins
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+
+  // Set up button and LED pins
+  pinMode(buttonPin, INPUT_PULLUP); // Configure button pin as input with pull-up resistor
+  pinMode(ledPin, OUTPUT);          // Configure LED pin as output
 
   // Connect to WiFi
   setup_wifi();
@@ -48,15 +61,44 @@ void loop() {
   duration = pulseIn(echoPin, HIGH);
   distance = (duration / 58.2);
 
+  // Convert distance to string and publish to MQTT
   String disp = String(distance);
-  Serial.println(distance);  // Convert to cm
+  Serial.println(distance);  // Print distance to serial monitor
 
-  // Publish distance to MQTT broker
   char distanceStr[8];
   dtostrf(distance, 1, 2, distanceStr);
   client.publish(distance_topic, distanceStr);
 
-  delay(1000);  // Wait for a second before next measurement
+  // Read the button state (LOW when pressed, HIGH when released due to pull-up)
+  bool buttonState = digitalRead(buttonPin) == LOW;
+
+  if (buttonState && !buttonPressed) {
+    // Button is just pressed
+    buttonPressed = true;
+    buttonPressStart = millis(); // Record the time when the button was pressed
+  } else if (!buttonState && buttonPressed) {
+    // Button is released
+    buttonPressed = false;
+  }
+
+  // Check if the button has been held for 5 seconds
+  if (buttonPressed && millis() - buttonPressStart >= 5000) {
+    // Emergency signal triggered
+    Serial.println("Emergency signal generated!");
+    digitalWrite(ledPin, HIGH); // Turn on the LED to indicate the signal
+
+    // Send emergency signal to MQTT
+    client.publish(emergency_topic, "Emergency signal triggered!");
+
+    // Hold the signal for demonstration
+    delay(2000);               // Keep the signal on for 2 seconds
+    digitalWrite(ledPin, LOW); // Turn off the LED
+
+    // Reset state
+    buttonPressed = false;
+  }
+
+  delay(1000);  // Wait for a second before next measurement and loop iteration
 }
 
 void setup_wifi() {

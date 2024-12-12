@@ -12,8 +12,8 @@ const char* ultrasonic_topic = "ultrasonic/distance";
 const char* air_quality_topic = "air_quality/status";
 
 // Ultrasonic sensor pins
-const int trigPin = 5;  // GPIO5
-const int echoPin = 18; // GPIO18
+const int trigPin = 4;  // GPIO5
+const int echoPin = 2; // GPIO18
 
 // MQ-135 sensor pin
 const int MQ135_PIN = 34; // GPIO34 (ADC1_CH6)

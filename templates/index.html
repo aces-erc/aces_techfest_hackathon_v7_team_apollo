@@ -90,12 +90,6 @@
             display: none;
         }
     </style>
-    <script>
-        function playAlertSound() {
-            const audio = new Audio('/static/alert.mp3');
-            audio.play().catch(err => console.log('Audio playback failed:', err));
-        }
-    </script>
 </head>
 <body>
     <div class="connection-status {{ 'connected' if mqtt_connected else 'disconnected' }}">
@@ -107,13 +101,12 @@
             <h2>Distance Sensor</h2>
             {% if distance is not none %}
                 <div class="sensor-value">{{ "%.1f"|format(distance) }} cm</div>
-                {% if emergency %}
+                {% if emergency_triggered %}
                     <div class="emergency-alert">
                         ⚠️ Emergency: Object Too Close!
                         <audio class="my_audio" autoplay>
-                            <source src="/static/alert.mp3" type="audio/mp3">
+                            <source src="/static/audio/alert.mp3" type="audio/mp3">
                         </audio>
-                        <script>playAlertSound();</script>
                     </div>
                 {% endif %}
             {% else %}
