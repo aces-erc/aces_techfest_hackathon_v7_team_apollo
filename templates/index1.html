@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanjeevani - Your Health Companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            Sanjeevani
+        </div>
+        <div class="navbar-login">
+            <a href="{{ url_for('login') }}" class="login-button">Log In</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>Your Personal Health Companion</h1>
+                <p>Sanjeevani is an innovative healthcare platform designed to simplify your medical journey. We provide comprehensive health tracking, personalized insights, and seamless medical consultations.</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary">Get Started</a>
+                    <a href="#" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="/api/placeholder/600/400" alt="Healthcare Illustration">
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h3>Health Tracking</h3>
+                <p>Monitor your vital signs, track fitness progress, and get personalized health recommendations.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>Medical Consultation</h3>
+                <p>Connect with certified healthcare professionals through our secure online platform.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-briefcase-medical"></i>
+                </div>
+                <h3>Medical Records</h3>
+                <p>Securely store and manage your medical history, prescriptions, and test results.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <!-- Footer content can be added later -->
+    </footer>
+</body>
+</html>
