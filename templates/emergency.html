@@ -3,22 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <script>
-        // Redirect to /emergency if emergency_triggered is true
-        document.addEventListener("DOMContentLoaded", () => {
-            const emergencyTriggered = {{ emergency_triggered | tojson }};
-            if (emergencyTriggered) {
-                alert("Emergency Triggered!");
-                window.location.href = "/emergency";
-            }
-        });
-    </script>
+    <title>Emergency Triggered</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffcccc;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            background-color: #f44336;
+            padding: 20px;
+            color: white;
+            font-size: 24px;
+        }
+        section {
+            margin: 20px;
+        }
+        .details {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .timestamp {
+            font-size: 14px;
+            color: gray;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #f44336;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Sensor Dashboard</h1>
-    <p>Distance: {{ distance }} cm</p>
-    <p>Air Quality: {{ air_quality }}</p>
-    <p>MQTT Connected: {{ 'Yes' if mqtt_connected else 'No' }}</p>
+    <header>Emergency Alert</header>
+    <section>
+        <div class="details">{{ trigger_type }}</div>
+        <div class="details">{{ data }}</div>
+        <div class="timestamp">Time: {{ timestamp }}</div>
+        <a class="back-link" href="/">Back to Dashboard</a>
+    </section>
 </body>
 </html>

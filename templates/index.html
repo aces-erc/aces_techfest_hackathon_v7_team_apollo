@@ -3,127 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Sensor Dashboard</title>
+    <title>Real-Time Monitoring</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <style>
-        :root {
-            --primary: #2196F3;
-            --success: #4CAF50;
-            --warning: #FFC107;
-            --danger: #f44336;
-        }
-
         body {
-            font-family: 'Segoe UI', sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
         }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .sensor-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .connection-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 500;
-        }
-
-        .connected {
-            background: var(--success);
+        header {
+            background-color: #4CAF50;
+            padding: 10px;
             color: white;
+            font-size: 24px;
         }
-
-        .disconnected {
-            background: var(--danger);
-            color: white;
+        section {
+            margin: 20px;
         }
-
-        .emergency-alert {
-            background: var(--danger);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            animation: blink 1s infinite;
-        }
-
-        .air-quality {
-            font-size: 1.2em;
-            padding: 8px 16px;
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        .very-good { background: var(--success); color: white; }
-        .good { background: var(--success); color: white; opacity: 0.8; }
-        .moderate { background: var(--warning); color: black; }
-        .bad { background: var(--danger); color: white; opacity: 0.8; }
-        .very-bad { background: var(--danger); color: white; }
-
-        @keyframes blink {
-            50% { opacity: 0.5; }
-        }
-
-        .sensor-value {
-            font-size: 2em;
-            font-weight: bold;
+        .status {
+            font-size: 18px;
             margin: 10px 0;
-            color: #333;
-        }
-
-        .my_audio {
-            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="connection-status {{ 'connected' if mqtt_connected else 'disconnected' }}">
-        {{ 'Connected' if mqtt_connected else 'Disconnected' }}
-    </div>
+    <header>Real-Time Monitoring Dashboard</header>
+    <section>
+        <div class="status" id="distance-status">Distance: Loading...</div>
+        <div class="status" id="air-quality-status">Air Quality: Loading...</div>
+        <div class="status" id="mqtt-status">MQTT Connection: {{ 'Connected' if mqtt_connected else 'Disconnected' }}</div>
+    </section>
 
-    <div class="dashboard-grid">
-        <div class="sensor-card">
-            <h2>Distance Sensor</h2>
-            {% if distance is not none %}
-                <div class="sensor-value">{{ "%.1f"|format(distance) }} cm</div>
-                {% if emergency_triggered %}
-                    <div class="emergency-alert">
-                        ⚠️ Emergency: Object Too Close!
-                        <audio class="my_audio" autoplay>
-                            <source src="/static/audio/alert.mp3" type="audio/mp3">
-                        </audio>
-                    </div>
-                {% endif %}
-            {% else %}
-                <p>Waiting for data...</p>
-            {% endif %}
-        </div>
+    <script>
+        const socket = io();
 
-        <div class="sensor-card">
-            <h2>Air Quality</h2>
-            {% if air_quality %}
-                <div class="air-quality {{ air_quality.lower().replace(' ', '-') }}">
-                    {{ air_quality }}
-                </div>
-            {% else %}
-                <p>Waiting for data...</p>
-            {% endif %}
-        </div>
-    </div>
+        socket.on('distance_update', (data) => {
+            document.getElementById('distance-status').textContent = `Distance: ${data.distance || 'N/A'} cm`;
+        });
+
+        socket.on('air_quality_update', (data) => {
+            document.getElementById('air-quality-status').textContent = `Air Quality: ${data.status || 'Unknown'}`;
+        });
+
+        socket.on('emergency_signal', (data) => {
+            alert(`Emergency Triggered! Distance: ${data.distance} cm`);
+            window.location.href = '/emergency';
+        });
+    </script>
 </body>
 </html>

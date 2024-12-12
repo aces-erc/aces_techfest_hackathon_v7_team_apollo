@@ -6,7 +6,7 @@ const char* ssid = "NB_A";
 const char* password = "12345Niraj";
 
 // MQTT broker details
-const char* mqtt_server = "192.168.137.225";  // Replace with your MQTT broker address
+const char* mqtt_server = "192.168.137.71";  // Replace with your MQTT broker address
 const int mqtt_port = 1883;
 const char* distance_topic = "ultrasonic/distance";
 
